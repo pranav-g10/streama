@@ -13,11 +13,11 @@ module Streama
       field :target_object
       field :receivers,     :type => Array
 
-      index({ 'actor._id' => 1, 'actor._type' => 1 })
+      #index({ 'actor._id' => 1, 'actor._type' => 1 })
       index({ 'actor.l' => "2d"}, {min: -200, max: 200, background: true, sparse: true})
-      index({ 'object._id' => 1, 'object._type' => 1 })
-      index({ 'target_object._id' => 1})
-      index({ 'receivers.id' => 1}, {background: true})
+      #index({ 'object._id' => 1, 'object._type' => 1 })
+      #index({ 'target_object._id' => 1})
+      index({ 'receivers' => 1}, {background: true})
 
       validates_presence_of :actor, :verb
       before_save :assign_data
