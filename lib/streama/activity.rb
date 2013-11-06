@@ -18,7 +18,8 @@ module Streama
       index({ 'object._id' => 1)
       index({ 'target_object._id' => 1}, sparse: true)
       index({ 'updated_at' => 1})
-      index({ 'object.expires' => 1}, sparse: true})
+      index({ 'object.expires' => 1}, sparse: true)
+      index({ 'object.flagged' => 1}, sparse: true)
       index({ 'receivers' => 1}, {background: true})
 
       validates_presence_of :actor, :verb
