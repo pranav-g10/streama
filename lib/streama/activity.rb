@@ -15,7 +15,7 @@ module Streama
 
       #index({ 'actor._id' => 1, 'actor._type' => 1 })
       #index({ 'actor.l' => "2d"}, {min: -200, max: 200, background: true, sparse: true})
-      index({ 'object._id' => 1)
+      index({ 'object._id' => 1})
       index({ 'target_object._id' => 1}, sparse: true)
       index({ 'updated_at' => 1})
       index({ 'object.expires' => 1}, sparse: true)
