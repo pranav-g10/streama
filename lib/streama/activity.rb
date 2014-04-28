@@ -26,6 +26,9 @@ module Streama
       validates_presence_of :actor, :verb
       before_save :assign_data
 
+      belongs_to :group, {class_name: 'Streama::GroupRepresentative', inverse_of: :activities}
+      index({group_id: 1}, {sparse: true})  # using a custom index instead of normal foreign_key index because of sparse requirement
+
     end
 
     module ClassMethods
@@ -81,8 +84,37 @@ module Streama
     def publish(options = {})
       actor = load_instance(:actor)
       self.receivers = (options[:receivers] || actor.followers).map { |r| { :id => r.id, :type => r.class.to_s } }
+      self.ensure_grouping
       self.save
       self
+    end
+
+    # groups the activity under a owner (owner's representative)
+    # if possible
+    def ensure_grouping
+      owner = self.group_owner
+      if owner.nil?
+        # nothing to do ... the activity is not groupable
+        return
+      end
+
+      # get the representative of the group
+      rep = owner.group_representative ||
+            owner.create_group_representative()
+
+      # set the rep as the self.group if not already set
+      if self.group!=rep
+        self.group = rep
+        self.save!
+      end
+
+      # update the last_activity of the rep
+      rep.set(:last_activity, self.cached_view)
+      # NOTE the reciever field is indexed and can grow to be VERY LARGE
+      # but since writes are fire and forget and indexing is backgrounded
+      # it seems safe to blindly add ALL the current activities recievers to the rep
+      rep.add_to_set(:receivers, {'$each' => self.receivers})
+      rep.touch
     end
 
     # Returns an instance of an actor, object or target
@@ -97,6 +129,20 @@ module Streama
     def refresh_data
       assign_data
       save(:validates_presence_of => false)
+    end
+
+    def group_owner
+      owner_type = definition.group_under
+      load_instance(owner_type)
+    end
+
+    def cached_view
+      {_id: self.id.to_s,
+        verb: self.verb,
+        actor: self.actor,
+        object: self.object,
+        target_object: self.target_object,
+        created_at: self.created_at}
     end
 
     protected

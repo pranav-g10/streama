@@ -9,7 +9,8 @@ module Streama
         :name => name.to_sym,
         :actor => {},
         :object => {},
-        :target_object => {}
+        :target_object => {},
+        :group_under => nil
       }
     end
 
@@ -28,6 +29,12 @@ module Streama
       end
     end
     data_methods :actor, :object, :target_object
+
+    def group_under(attr)
+      if [:actor, :object, :target_object].include? attr
+        @attributes[:group_under] = attr
+      end
+    end
 
   end
 
