@@ -25,6 +25,7 @@ module Streama
 
       validates_presence_of :actor, :verb
       before_save :assign_data
+      after_destroy :update_group
 
       belongs_to :group, {class_name: 'Streama::GroupRepresentative', inverse_of: :activities}
       index({group_id: 1}, {sparse: true})  # using a custom index instead of normal foreign_key index because of sparse requirement
@@ -165,6 +166,24 @@ module Streama
           end
         end
         write_attribute(type, hash)
+      end
+    end
+
+    def update_group
+      rep = self.group
+
+      if rep.nil? || self.id.to_s!=rep.last_activity[:_id]
+        return
+      end
+
+      # if this is the last_activity in the rep's record
+      # then update the rep with an alternate last_activity
+      alt = rep.activities.desc(:created_at).first
+      if !alt.nil?
+        rep.set(:last_activity, alt.cached_view)
+        rep.set(:updated_at, alt.created_at)
+      else
+        rep.destroy
       end
     end
 
