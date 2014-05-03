@@ -138,12 +138,12 @@ module Streama
     end
 
     def cached_view
-      {_id: self.id.to_s,
-        verb: self.verb,
-        actor: self.actor,
-        object: self.object,
-        target_object: self.target_object,
-        created_at: self.created_at}
+      {'_id' => self.id.to_s,
+        'verb' => self.verb,
+        'actor' => self.actor,
+        'object' => self.object,
+        'target_object' => self.target_object,
+        'created_at' => self.created_at}
     end
 
     protected
@@ -172,7 +172,7 @@ module Streama
     def update_group
       rep = self.group
 
-      if rep.nil? || self.id.to_s!=rep.last_activity[:_id]
+      if rep.nil? || self.id.to_s!=rep.last_activity['_id']
         return
       end
 
