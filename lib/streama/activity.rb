@@ -113,7 +113,7 @@ module Streama
       rep.set(:last_activity, self.cached_view)
       # NOTE the reciever field is indexed and can grow to be VERY LARGE
       # but since writes are fire and forget and indexing is backgrounded
-      # it seems safe to blindly add ALL the current activities recievers to the rep
+      # it seems safe to blindly add ALL the current activities receivers to the rep
       rep.add_to_set(:receivers, {'$each' => self.receivers})
       rep.touch
     end
