@@ -130,6 +130,7 @@ module Streama
     def refresh_data
       assign_data
       save(:validates_presence_of => false)
+      self.update_group
     end
 
     def group_owner
